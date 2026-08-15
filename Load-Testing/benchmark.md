@@ -6,7 +6,7 @@ Here are the Top 5 most critical benchmark runs from our load testing suite.
 
 ---
 
-## 1. [MAIN RUN] Render Production Cloud Benchmark (Sustained 30 VUs Load @ 1.1M DB Scale)
+## 1. Render Production Cloud Benchmark (Sustained 30 VUs Load @ 1.1M DB Scale)
 **Run 20 Summary:** This is the definitive production test. We hammered the live cloud container with 30 Virtual Users (VUs) against a 1.1 million record database, utilizing both our B-Tree composite index and Upstash Redis caching.
 * **Environment:** Render Cloud Web Service + Upstash Redis Cloud
 * **DB Data Load:** 1.1 Million Records (500 users, 500k shifts)
