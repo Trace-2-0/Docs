@@ -2,6 +2,10 @@
 
 This document dives into the Low-Level Design (LLD) of specific critical components in the Trace backend, while candidly acknowledging where the current implementation deviates from the ideal architectural design. 
 
+
+<img width="862" height="404" alt="image" src="https://github.com/user-attachments/assets/c184ada6-f51c-4df0-a484-3182159cafc9" />
+
+
 ## Component LLD: The Shift Sweep Engine
 
 One of the most complex low-level operations in Trace is managing abandoned shifts. When an employee's machine loses power or internet, the desktop agent cannot send a clean `clock-out` request.
