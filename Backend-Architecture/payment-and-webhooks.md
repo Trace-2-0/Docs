@@ -14,7 +14,7 @@ flowchart TD
     A["User Clicks 'Upgrade'<br/>(Frontend)"]:::fe
     -->|"POST /api/subscription/checkout"| B["subscription.controller.ts -> checkout()"]:::be
 
-    B -->|"Attaches notes: { companyId }"| C["Razorpay API<br/>(Creates Subscription Intent)"]:::gateway
+    B -->|"Attaches notes: { Tenant ID }"| C["Razorpay API<br/>(Creates Subscription Intent)"]:::gateway
 
     C -->|"Returns subscriptionId"| D["Opens Razorpay Checkout Modal<br/>(Frontend Popup)"]:::fe
 
@@ -23,7 +23,7 @@ flowchart TD
 
     F --> G{"Verify x-razorpay-signature<br/>(HMAC SHA-256)"}:::be
 
-    G -- "Valid Signature" --> H["Extract companyId & planId from Payload Notes"]:::be
+    G -- "Valid Signature" --> H["Extract Tenant ID & planId from Payload Notes"]:::be
 
     H --> I["Prisma Updates Company Table<br/>(data: { plan: 'starter' | 'business' })"]:::db
     I --> J["Return 200 OK to Razorpay"]:::be
@@ -38,6 +38,6 @@ To prevent malicious users from hitting this endpoint to grant themselves free s
 
 ## Linking Payments to Tenants
 
-When we initially create the subscription intent in step two, we attach the `companyId` inside the `notes` metadata payload sent to Razorpay. 
+When we initially create the subscription intent in step two, we attach the `Tenant ID` inside the `notes` metadata payload sent to Razorpay. 
 
-When Razorpay fires the webhook back to us after a successful payment, they include this exact `notes` object. This clever pattern allows our backend to immediately identify which company in our database just paid, without needing complex lookup tables or session states. We extract the `companyId`, update the `Company.plan` tier in Prisma, and our authorization middlewares instantly unlock the new features for that tenant.
+When Razorpay fires the webhook back to us after a successful payment, they include this exact `notes` object. This clever pattern allows our backend to immediately identify which company in our database just paid, without needing complex lookup tables or session states. We extract the `Tenant ID`, update the `Company.plan` tier in Prisma, and our authorization middlewares instantly unlock the new features for that tenant.

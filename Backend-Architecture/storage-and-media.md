@@ -13,7 +13,7 @@ If our Node.js server downloaded the image from R2 and streamed it to the client
 
 ### How Pre-Signed URLs solve this:
 1. The client asks Express for an image.
-2. Express verifies the user's `companyId` matches the screenshot's metadata in the database.
+2. Express verifies the user's `Tenant ID` matches the screenshot's metadata in the database.
 3. Express generates a lightweight cryptographic string signature (valid for 1 hour) and returns a URL.
 4. The client downloads the heavy image data directly from Cloudflare R2, bypassing the Node.js server entirely.
 

@@ -8,7 +8,7 @@ We separate web frontend requests from desktop client requests because they have
 
 | Auth System | Used By | Header Format | Token Type | Lifetime & Revocation |
 | :--- | :--- | :--- | :--- | :--- |
-| **`jwtAuth`** | React Admin Dashboard | `Authorization: Bearer <token>` | Signed JWT | Expires in 7 Days. Contains `userId`, `companyId`, `role`. |
+| **`jwtAuth`** | React Admin Dashboard | `Authorization: Bearer <token>` | Signed JWT | Expires in 7 Days. Contains `userId`, `Tenant ID`, `role`. |
 | **`agentAuth`** | Desktop Agent App | `x-agent-token: <unique-token>` | Database API Key | Persistent. Revocable instantly by Admins. |
 
 ### Why not use JWTs for the Desktop Agent?
@@ -22,17 +22,17 @@ Multi-tenancy means multiple companies share the exact same database and server 
 
 ### How Trace Enforces Isolation:
 
-1. **Foreign Key Attachment (`companyId`):**
-   Every table in Prisma (`User`, `Team`, `Shift`, `Screenshot`, `AppUsage`) has a required `companyId` foreign key.
+1. **Foreign Key Attachment (`Tenant ID`):**
+   Every table in Prisma (`User`, `Team`, `Shift`, `Screenshot`, `AppUsage`) has a required `Tenant ID` foreign key.
 
 2. **Automatic Scope Injection:**
-   Because our authentication middlewares (`jwtAuth` and `agentAuth`) extract the `companyId` from the verified token, our route controllers **never trust input from the request body** for tenant identification. They always query using the authenticated scope:
+   Because our authentication middlewares (`jwtAuth` and `agentAuth`) extract the `Tenant ID` from the verified token, our route controllers **never trust input from the request body** for tenant identification. They always query using the authenticated scope:
 
    ```typescript
    // SAFE: Always scoped to the authenticated user's company
    const users = await prisma.user.findMany({
      where: { 
-       companyId: req.user.companyId // Guarantees zero data leakage
+       Tenant ID: req.user.Tenant ID // Guarantees zero data leakage
      }
    });
    ```

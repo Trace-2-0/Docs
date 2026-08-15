@@ -37,7 +37,7 @@ erDiagram
 
     COMPANY_SETTINGS {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         int expectedWorkSecs
         int screenshotIntervalSecs
         int heartbeatGraceSecs
@@ -45,14 +45,14 @@ erDiagram
 
     TEAMS {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         string name
         int idleThresholdSecs
     }
 
     USERS {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         string teamId FK
         string email
         string role
@@ -62,7 +62,7 @@ erDiagram
 
     SHIFTS {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         string userId FK
         date date
         datetime startTime
@@ -75,7 +75,7 @@ erDiagram
 
     BREAKS {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         string shiftId FK
         datetime startTime
         datetime endTime
@@ -84,7 +84,7 @@ erDiagram
 
     SCREENSHOTS {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         string userId FK
         string shiftId FK
         datetime capturedAt
@@ -94,7 +94,7 @@ erDiagram
 
     DAILY_APP_USAGE {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         string userId FK
         date date
         json appMetrics
@@ -102,7 +102,7 @@ erDiagram
 
     AUDIT_LOGS {
         string id PK
-        string companyId FK
+        string Tenant ID FK
         string actorId
         string action
         datetime createdAt
@@ -114,7 +114,7 @@ erDiagram
 The database follows a strict 3-tier hierarchy:
 `Company (Tenant Root) -> Teams (Department Grouping) -> Users (Employees/Admins)`
 
-This hierarchical design simplifies querying and access control. Every table below `Companies` includes a `companyId` foreign key, making it trivial to scope queries and enforce multi-tenancy.
+This hierarchical design simplifies querying and access control. Every table below `Companies` includes a `Tenant ID` foreign key, making it trivial to scope queries and enforce multi-tenancy.
 
 ## Database Integrity & Cascade Deletes
 
@@ -129,12 +129,12 @@ Querying millions of screenshots or shift records without indexes causes full ta
 
 ```prisma
 // Fast Daily Dashboard Queries (e.g. Get today's shifts for Company X)
-@@index([companyId, date])
+@@index([Tenant ID, date])
 
 // Fast User Activity Timeline (e.g. Get User Y's screenshots for Date Z)
 @@index([userId, capturedAt])
-@@index([companyId, capturedAt])
+@@index([Tenant ID, capturedAt])
 
 // Fast Multi-Tenant Composite Unique Key
-@@unique([companyId, email]) // The same email can register under different companies
+@@unique([Tenant ID, email]) // The same email can register under different companies
 ```

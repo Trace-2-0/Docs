@@ -26,7 +26,7 @@ res.writeHead(200, {
 
 We maintain a singleton `SSEManager` class to handle connections. Because Trace is multi-tenant, it is vital that events from Company A are never broadcasted to Company B's dashboard.
 
-The manager keeps an in-memory Map where the key is the `companyId` and the value is an array of active response connections for that company's admins. When the system processes a new screenshot, it calls `sseManager.broadcast('companyA', 'screenshot.captured', data)`. The manager loops only through Company A's sockets and pushes the plain-text event.
+The manager keeps an in-memory Map where the key is the `Tenant ID` and the value is an array of active response connections for that company's admins. When the system processes a new screenshot, it calls `sseManager.broadcast('companyA', 'screenshot.captured', data)`. The manager loops only through Company A's sockets and pushes the plain-text event.
 
 ### Keep-Alive and Memory Management
 Cloud load balancers will aggressively drop idle HTTP connections. To keep our SSE streams alive, the `SSEManager` runs an interval that pushes a lightweight comment (`:keepalive\n\n`) to all connected clients every 30 seconds.

@@ -5,7 +5,7 @@ Trace is architected to handle continuous, high-volume telemetry from thousands 
 ## Core Engineering Principles
 
 1. **Strict Multi-Tenancy (Row-Level Isolation)**
-   Trace is a B2B application where data privacy is non-negotiable. We avoid logical separation in the application layer alone. Instead, every database table carries a `companyId` foreign key. All queries are scoped to the authenticated user's `companyId` by the middleware. This guarantees zero data leakage between tenants.
+   Trace is a B2B application where data privacy is non-negotiable. We avoid logical separation in the application layer alone. Instead, every database table carries a `Tenant ID` foreign key. All queries are scoped to the authenticated user's `Tenant ID` by the middleware. This guarantees zero data leakage between tenants.
 
 2. **Decoupling Heavy Workloads from the Event Loop**
    Node.js is single-threaded. CPU-intensive tasks like Base64 decoding and WebP image compression can easily starve the event loop, causing API timeouts for all users. We enforce a strict rule: all heavy processing must be offloaded. We use BullMQ and Redis to queue these tasks, allowing the Express server to return `202 Accepted` instantly while background workers handle the heavy lifting.
