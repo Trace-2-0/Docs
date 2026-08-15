@@ -7,21 +7,25 @@ This document provides a high-level view of how the different components of Trac
 Trace is divided into three primary layers: the Client Layer, the Gateway/API Layer, and the Data/Infrastructure Layer. 
 
 ```mermaid
-flowchart LR
-    %% Clients
-    Agent[Desktop Agent]
-    Admin[Web Dashboard]
+flowchart TD
+    %% Styling to make it bold and big
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px,font-size:16px,font-weight:bold;
+    classDef api fill:#e0e7ff,stroke:#4f46e5,stroke-width:3px;
+    classDef storage fill:#dcfce7,stroke:#16a34a,stroke-width:3px;
+    classDef client fill:#fef3c7,stroke:#d97706,stroke-width:3px;
+    classDef queue fill:#ffe4e6,stroke:#e11d48,stroke-width:3px;
+
+    %% Components
+    Agent[Desktop Agent]:::client
+    Admin[Web Dashboard]:::client
     
-    %% Core Server
-    API[Node.js API Server]
+    API[Node.js API Server]:::api
     
-    %% Background Processing
-    Queue[(Redis Queue)]
-    Worker[Background Workers]
+    Queue[(Redis Queue)]:::queue
+    Worker[Background Workers]:::queue
     
-    %% Storage
-    DB[(PostgreSQL)]
-    Storage[(Cloudflare R2)]
+    DB[(PostgreSQL)]:::storage
+    Storage[(Cloudflare R2)]:::storage
 
     %% Interactions
     Agent -- "Heartbeats & Screenshots" --> API
