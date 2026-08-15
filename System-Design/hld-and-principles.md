@@ -2,6 +2,9 @@
 
 Trace is architected to handle continuous, high-volume telemetry from thousands of desktop agents while simultaneously serving real-time, aggregated analytics to web dashboards. This requires a robust High-Level Design (HLD) based on strict engineering principles.
 
+<img width="862" height="659" alt="image" src="https://github.com/user-attachments/assets/a608aed6-2019-4b80-a3d0-9ca811f1c748" />
+
+
 ## Core Engineering Principles
 
 1. **Strict Multi-Tenancy (Row-Level Isolation)**
