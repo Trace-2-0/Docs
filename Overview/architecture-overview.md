@@ -8,35 +8,47 @@ Trace is divided into three primary layers: the Client Layer, the Gateway/API La
 
 ```mermaid
 flowchart TD
-    %% Styling to make it bold and big
-    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px,font-size:16px,font-weight:bold;
-    classDef api fill:#e0e7ff,stroke:#4f46e5,stroke-width:3px;
-    classDef storage fill:#dcfce7,stroke:#16a34a,stroke-width:3px;
-    classDef client fill:#fef3c7,stroke:#d97706,stroke-width:3px;
-    classDef queue fill:#ffe4e6,stroke:#e11d48,stroke-width:3px;
+    classDef client fill:#3b82f6,color:#fff,stroke:#1d4ed8,stroke-width:2px;
+    classDef api fill:#8b5cf6,color:#fff,stroke:#6d28d9,stroke-width:2px;
+    classDef data fill:#10b981,color:#fff,stroke:#047857,stroke-width:2px;
+    classDef external fill:#f59e0b,color:#fff,stroke:#b45309,stroke-width:2px;
 
-    %% Components
-    Agent[Desktop Agent]:::client
-    Admin[Web Dashboard]:::client
-    
-    API[Node.js API Server]:::api
-    
-    Queue[(Redis Queue)]:::queue
-    Worker[Background Workers]:::queue
-    
-    DB[(PostgreSQL)]:::storage
-    Storage[(Cloudflare R2)]:::storage
+    subgraph ClientLayer ["Client Layer"]
+        Web["Admin Web Dashboard (Next.js)"]:::client
+        Agent["Desktop Agent (Electron)"]:::client
+    end
 
-    %% Interactions
-    Agent -- "Heartbeats & Screenshots" --> API
-    Admin -- "Real-time updates (SSE)" --> API
+    subgraph APILayer ["API & Processing Layer (Express / Node.js)"]
+        Gateway["REST API Gateway & Middlewares"]:::api
+        SSE["SSE Manager (Real-Time Stream)"]:::api
+        Workers["BullMQ Background Workers"]:::api
+        Cron["Cron Jobs (Shift Sweeper)"]:::api
+    end
+
+    subgraph DataLayer ["Data & Storage Layer"]
+        PG[("PostgreSQL (Prisma / Supabase)")]:::data
+        Redis[("Redis (Upstash) - Cache & Queue")]:::data
+    end
+
+    subgraph External ["External Services"]
+        R2["Cloudflare R2 (Screenshots)"]:::external
+        Razorpay["Razorpay (Billing Webhooks)"]:::external
+    end
+
+    Web <-->|JWT Auth, REST| Gateway
+    Web <-->|Server-Sent Events| SSE
+    Agent <-->|Agent Token, REST| Gateway
     
-    API -- "Read/Write Data" --> DB
-    API -- "Enqueue Images" --> Queue
+    Gateway <-->|Read/Write| PG
+    Gateway -->|Enqueue Image Processing| Redis
+    Redis -->|Dequeue Job| Workers
+    Workers -->|Save Metadata| PG
+    Workers -->|Upload WebP| R2
     
-    Queue -- "Process Image" --> Worker
-    Worker -- "Save File URL" --> DB
-    Worker -- "Upload WebP" --> Storage
+    Cron -->|Detect Stale Shifts| PG
+    Cron -->|Trigger Auto-Checkout| SSE
+    
+    Razorpay -->|Payment Webhook| Gateway
 ```
 
 ## Metrics and Scalability
