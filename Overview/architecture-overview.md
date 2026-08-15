@@ -7,48 +7,32 @@ This document provides a high-level view of how the different components of Trac
 Trace is divided into three primary layers: the Client Layer, the Gateway/API Layer, and the Data/Infrastructure Layer. 
 
 ```mermaid
-flowchart TD
-    classDef client fill:#3b82f6,color:#fff,stroke:#1d4ed8,stroke-width:2px;
-    classDef api fill:#8b5cf6,color:#fff,stroke:#6d28d9,stroke-width:2px;
-    classDef data fill:#10b981,color:#fff,stroke:#047857,stroke-width:2px;
-    classDef external fill:#f59e0b,color:#fff,stroke:#b45309,stroke-width:2px;
-
-    subgraph ClientLayer ["Client Layer"]
-        Web["Admin Web Dashboard (Next.js)"]:::client
-        Agent["Desktop Agent (Electron)"]:::client
-    end
-
-    subgraph APILayer ["API & Processing Layer (Express / Node.js)"]
-        Gateway["REST API Gateway & Middlewares"]:::api
-        SSE["SSE Manager (Real-Time Stream)"]:::api
-        Workers["BullMQ Background Workers"]:::api
-        Cron["Cron Jobs (Shift Sweeper)"]:::api
-    end
-
-    subgraph DataLayer ["Data & Storage Layer"]
-        PG[("PostgreSQL (Prisma / Supabase)")]:::data
-        Redis[("Redis (Upstash) - Cache & Queue")]:::data
-    end
-
-    subgraph External ["External Services"]
-        R2["Cloudflare R2 (Screenshots)"]:::external
-        Razorpay["Razorpay (Billing Webhooks)"]:::external
-    end
-
-    Web <-->|JWT Auth, REST| Gateway
-    Web <-->|Server-Sent Events| SSE
-    Agent <-->|Agent Token, REST| Gateway
+flowchart LR
+    %% Clients
+    Agent[Desktop Agent]
+    Admin[Web Dashboard]
     
-    Gateway <-->|Read/Write| PG
-    Gateway -->|Enqueue Image Processing| Redis
-    Redis -->|Dequeue Job| Workers
-    Workers -->|Save Metadata| PG
-    Workers -->|Upload WebP| R2
+    %% Core Server
+    API[Node.js API Server]
     
-    Cron -->|Detect Stale Shifts| PG
-    Cron -->|Trigger Auto-Checkout| SSE
+    %% Background Processing
+    Queue[(Redis Queue)]
+    Worker[Background Workers]
     
-    Razorpay -->|Payment Webhook| Gateway
+    %% Storage
+    DB[(PostgreSQL)]
+    Storage[(Cloudflare R2)]
+
+    %% Interactions
+    Agent -- "Heartbeats & Screenshots" --> API
+    Admin -- "Real-time updates (SSE)" --> API
+    
+    API -- "Read/Write Data" --> DB
+    API -- "Enqueue Images" --> Queue
+    
+    Queue -- "Process Image" --> Worker
+    Worker -- "Save File URL" --> DB
+    Worker -- "Upload WebP" --> Storage
 ```
 
 ## Metrics and Scalability
